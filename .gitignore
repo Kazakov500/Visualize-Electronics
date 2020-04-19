@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.idea
+.cache
+.vscode/
+node_modules/
+dist/
+build/
+*.log
+*.swp
+*.DS_Store
+npm-debug.log*
+package-lock.json
