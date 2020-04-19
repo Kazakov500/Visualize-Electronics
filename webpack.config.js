@@ -3,8 +3,7 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   output: {
-    path: path.resolve('build'),
-    publicPath: '/'
+    path: path.resolve('build')
   },
   module: {
     rules: [
