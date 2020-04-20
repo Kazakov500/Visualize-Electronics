@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import ThreeScene from './ThreeScene';
 
 class App extends Component {
   state = {
@@ -17,9 +18,10 @@ class App extends Component {
     return (
       <div>
         <h2>Hello</h2>
-        <p>You pressed button {this.state.count} times!</p>
+        <span>You pressed button {this.state.count} times!</span>
         <button onClick={this.handleChange}>PRESS ME!</button>
-        <button onClick={this.handleReset}>RESET!</button>
+        <button style={{ marginBottom: "20px" }} onClick={this.handleReset}>RESET!</button>
+        <ThreeScene />
       </div>
     );
   }
