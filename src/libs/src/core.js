@@ -60,8 +60,10 @@ register([
 
 // locales en and en-US are required for default behavior
 register([
+    // Правка
     require('./locale-en'),
-    require('./locale-en-us')
+    require('./locale-en-us'),
+    require('../lib/locales/ru')
 ]);
 
 // locales that are present in the window should be loaded
