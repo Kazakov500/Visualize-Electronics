@@ -10,9 +10,14 @@ module.exports = {
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader"
-        }
+        use: [
+          {
+            loader: "babel-loader"
+          },
+          {
+            loader: "ify-loader"
+          }
+        ]
       },
       {
         test: /\.html$/,
@@ -29,5 +34,8 @@ module.exports = {
       template: "./src/index.html",
       filename: "./index.html"
     })
-  ]
+  ],
+  devServer: {
+    open: false
+  }
 };
