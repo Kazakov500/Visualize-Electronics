@@ -649,10 +649,10 @@ proto.updateAngularAxis = function(fullLayout, polarLayout) {
 
 proto.updateFx = function(fullLayout, polarLayout) {
     if(!this.gd._context.staticPlot) {
-        this.updateAngularDrag(fullLayout);
-        this.updateRadialDrag(fullLayout, polarLayout, 0);
-        this.updateRadialDrag(fullLayout, polarLayout, 1);
-        this.updateMainDrag(fullLayout);
+        // this.updateAngularDrag(fullLayout);
+        // this.updateRadialDrag(fullLayout, polarLayout, 0);
+        // this.updateRadialDrag(fullLayout, polarLayout, 1);
+        // this.updateMainDrag(fullLayout);
     }
 };
 
@@ -1143,6 +1143,115 @@ proto.updateRadialDrag = function(fullLayout, polarLayout, rngIndex) {
     };
 
     dragElement.init(dragOpts);
+};
+
+proto.rotateOrRange = function(dx, dy, polarLayout) {
+    var _this = polarLayout._subplot;
+    var gd = _this.gd;
+    var cx = _this.cx;
+    var cy = _this.cy;
+    var radius = _this.radius;
+    var layers = _this.layers;
+    var bl = constants.radialDragBoxSize;
+    var bl2 = bl / 2;
+    var radialAxis = _this.radialAxis;
+    // move function (either rotate or re-range flavor)
+    var moveFn2;
+    // rotate angle on done
+    var angle1;
+    // re-range range[1] (or range[0]) on done
+    var rprime;
+    var angle0 = deg2rad(_this.radialAxisAngle);
+    var tx, ty, className;
+
+    var rl = radialAxis._rl;
+    var rl0 = rl[0];
+    var rl1 = rl[1];
+    var rbase = rl[1];
+    var m = 0.75 * (rl[1] - rl[0]) / (1 - polarLayout.hole) / radius;
+
+    tx = cx + (radius + bl2) * Math.cos(angle0);
+    ty = cy - (radius + bl2) * Math.sin(angle0);
+
+    var dvec = [dx, -dy];
+    var rvec = [Math.cos(angle0), Math.sin(angle0)];
+    var comp = Math.abs(Lib.dot(dvec, rvec) / Math.sqrt(Lib.dot(dvec, dvec)));
+
+    // mostly perpendicular motions rotate,
+    // mostly parallel motions re-range
+    if(!isNaN(comp)) {
+        moveFn2 = comp < 0.5 ? rotateMove : rerangeMove;
+        moveFn2(dx, dy);
+    }
+
+    function computeRadialAxisUpdates(update) {
+        if(angle1 !== null) {
+            update[_this.id + '.radialaxis.angle'] = angle1;
+        } else if(rprime !== null) {
+            update[_this.id + '.radialaxis.range[' + 1 + ']'] = rprime;
+        }
+    }
+
+    function rotateMove(dx, dy) {
+        var x1 = tx + dx;
+        var y1 = ty + dy;
+
+        angle1 = Math.atan2(cy - y1, x1 - cx);
+        if(_this.vangles) angle1 = snapToVertexAngle(angle1, _this.vangles);
+        angle1 = rad2deg(angle1);
+
+        var transform = strTranslate(cx, cy) + strRotate(-angle1);
+        layers['radial-axis'].attr('transform', transform);
+        layers['radial-line'].select('line').attr('transform', transform);
+
+        var fullLayoutNow = _this.gd._fullLayout;
+        var polarLayoutNow = fullLayoutNow[_this.id];
+        _this.updateRadialAxisTitle(fullLayoutNow, polarLayoutNow, angle1);
+    }
+
+    function rerangeMove(dx, dy) {
+        // project (dx, dy) unto unit radial axis vector
+        var dr = Lib.dot([dx, -dy], [Math.cos(angle0), Math.sin(angle0)]);
+        rprime = rbase - m * dr;
+
+        // make sure rprime does not change the range[0] -> range[1] sign
+        if((m > 0) !== (1 ? rprime > rl0 : rprime < rl1)) {
+            rprime = null;
+            return;
+        }
+
+        var fullLayoutNow = gd._fullLayout;
+        var polarLayoutNow = fullLayoutNow[_this.id];
+
+        // update radial range -> update c2g -> update _m,_b
+        radialAxis.range[1] = rprime;
+        radialAxis._rl[1] = rprime;
+        _this.updateRadialAxis(fullLayoutNow, polarLayoutNow);
+
+        _this.xaxis.setRange();
+        _this.xaxis.setScale();
+        _this.yaxis.setRange();
+        _this.yaxis.setScale();
+
+        var hasRegl = false;
+
+        for(var traceType in _this.traceHash) {
+            var moduleCalcData = _this.traceHash[traceType];
+            var moduleCalcDataVisible = Lib.filterVisible(moduleCalcData);
+            var _module = moduleCalcData[0][0].trace._module;
+            _module.plot(gd, _this, moduleCalcDataVisible, polarLayoutNow);
+            if(Registry.traceIs(traceType, 'gl') && moduleCalcDataVisible.length) hasRegl = true;
+        }
+
+        if(hasRegl) {
+            clearGlCanvases(gd);
+            redrawReglTraces(gd);
+        }
+    }
+
+    var update = {};
+    computeRadialAxisUpdates(update);
+    gd.emit('plotly_relayouting', update);
 };
 
 proto.updateAngularDrag = function(fullLayout) {
