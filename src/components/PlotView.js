@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Plotly from './customPlotly';
 import createPlotlyComponent from 'react-plotly.js/factory';
 
+import s from '../styles/main.css';
+
 const x1 = 40;
 const x2 = 1.1;
 const x3 = 0.5;
@@ -11,6 +13,12 @@ const x6 = 61;
 
 const THETA_MAX = 360;
 const ZOOM_STEP = 20;
+
+const partsConfig = [
+  { angle: 0.79, color: '#00e676', name: 'R' },
+  { angle: -1.3, color: '#00b0ff', name: 'C' },
+  { angle: -0.27, color: '#ff5252', name: 'L' },
+];
 
 const config = {
   scrollZoom: true,
@@ -34,7 +42,7 @@ const config = {
       }
     },
   ],
-  modeBarButtonsToRemove: ['zoom2d','toggleHover']
+  modeBarButtonsToRemove: ['zoom2d', 'toggleHover']
 };
 
 const layout = ({ angle = 90 }) => ({
@@ -42,20 +50,29 @@ const layout = ({ angle = 90 }) => ({
     radialaxis: {
       visible: true,
       range: [0, 50],
-      angle: angle
+      angle: angle,
+      categoryorder: "category descending"
+    },
+    angularaxis: {
+      dtick: 15
     }
   },
   margin: {
-    l: 0,
+    l: 20,
     r: 0,
     b: 20,
     t: 20
+  },
+  font: {
+    famyly: 'Balto',
+    size: 10
   }
 });
 
-const data = ({ rArray, thetaArray, color}) => ({
+const data = ({ rArray, thetaArray, color, name}) => ({
   type: "scatterpolar",
   mode: "lines",
+  name: name,
   r: rArray,
   theta: thetaArray,
   fill: "toself",
@@ -71,9 +88,10 @@ class PlotView extends Component {
     count: 0
   };
 
-  returnFunction = theta => {
+  returnFunction = (theta, angle) => {
     const newTheta = theta * 2 * Math.PI / THETA_MAX;
-    return x1 * Math.pow(Math.sin(x2 + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), x6);
+    const newAngle = angle || x2;
+    return x1 * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), x6);
   };
 
   createThetaArray = count => {
@@ -84,23 +102,35 @@ class PlotView extends Component {
     return array
   };
 
-  createR = thetaArray => {
+  createR = (thetaArray, angle) => {
     const array = [];
-    thetaArray.forEach(theta => array.push(this.returnFunction(theta)));
+    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle)));
     return array;
+  };
+
+  drawPart = part => {
+    const { color, name, angle } = part;
+    const thetaArray = this.createThetaArray(500);
+    const rArray = this.createR(thetaArray, angle);
+    return data({ rArray, thetaArray, color , name });
+  };
+
+  drawAllParts = () => {
+    const parts = [];
+    partsConfig.forEach(part => {
+      parts.push(this.drawPart(part));
+    });
+    return parts;
   };
 
   render() {
     const Plot = createPlotlyComponent(Plotly);
 
-    const thetaArray = this.createThetaArray(500);
-    const rArray = this.createR(thetaArray);
-
     return (
       <div>
-        <h2>Plot</h2>
+        <h2 className={s.header}>Plot</h2>
         <Plot
-          data={ [data({rArray, thetaArray, color: '#709BFF'})] }
+          data={ this.drawAllParts() }
           layout={ layout({}) }
           config={ config }
         />

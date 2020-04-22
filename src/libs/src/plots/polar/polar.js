@@ -652,7 +652,7 @@ proto.updateFx = function(fullLayout, polarLayout) {
         // this.updateAngularDrag(fullLayout);
         // this.updateRadialDrag(fullLayout, polarLayout, 0);
         // this.updateRadialDrag(fullLayout, polarLayout, 1);
-        // this.updateMainDrag(fullLayout);
+        this.updateMainDrag(fullLayout);
     }
 };
 
@@ -678,7 +678,7 @@ proto.updateMainDrag = function(fullLayout) {
     var chw = constants.cornerHalfWidth;
     var chl = constants.cornerLen / 2;
 
-    var mainDrag = dragBox.makeDragger(layers, 'path', 'maindrag', 'crosshair');
+    var mainDrag = dragBox.makeDragger(layers, 'path', 'maindrag', 'auto');
 
     d3.select(mainDrag)
         .attr('d', _this.pathSubplot())
@@ -974,7 +974,7 @@ proto.updateMainDrag = function(fullLayout) {
         dragElement.unhover(gd, evt);
     };
 
-    dragElement.init(dragOpts);
+    // dragElement.init(dragOpts);
 };
 
 proto.updateRadialDrag = function(fullLayout, polarLayout, rngIndex) {
