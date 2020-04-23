@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Paper from '@material-ui/core/Paper';
 import cx from 'classnames';
 import Buttons from './Buttons';
+import CustomSlider from './CustomSlider';
 
 import s from '../styles/plot.css';
 import sP from '../styles/panel.css';
@@ -24,7 +25,7 @@ class Panel extends Component {
 
   render() {
     const { expanded } = this.state;
-    const { drawGraph } = this.props;
+    const { drawGraph, onChangeCount, onChangeWidth, onChangeLineWidth, onChangeDTick } = this.props;
 
     return (
       <Paper className={ s.column }>
@@ -32,14 +33,46 @@ class Panel extends Component {
           <ExpSummary expandIcon={<ExpandMoreIcon />} className={ sP.summary }>
             <Typography>Изменение параметров графика</Typography>
           </ExpSummary>
-          <ExpDetails className={ sP.details }>
-            <Typography>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus
-              ex, sit amet blandit leo lobortis eget. Lorem ipsum dolor sit amet, consectetur
-              adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-            </Typography>
+          <ExpDetails style={{ display: 'block' }} className={ sP.details }>
+            <div className={ sP.sliderRow }>
+              <CustomSlider
+                min={ 20 }
+                max={ 500 }
+                defaultValue = { 500 }
+                step={ 20 }
+                onChange={ onChangeCount }
+                title="Количество точек для отрисовки"
+              />
+              <CustomSlider
+                min={ 16 }
+                max={ 200 }
+                defaultValue = { 60 }
+                step={ 10 }
+                onChange={ onChangeWidth }
+                title="Толщина отображения"
+              />
+            </div>
+            <div className={ sP.sliderRow }>
+              <CustomSlider
+                min={ 0.1 }
+                max={ 2 }
+                defaultValue = { 1 }
+                step={ 0.1 }
+                onChange={ onChangeLineWidth }
+                title="Толщина границ"
+              />
+              <CustomSlider
+                min={ 1 }
+                max={ 20 }
+                defaultValue = { 5 }
+                step={ 1 }
+                onChange={ onChangeDTick }
+                title="Деление шкалы"
+              />
+            </div>
           </ExpDetails>
         </ExpansionPanel>
+
         <ExpansionPanel expanded={ expanded[1] } onChange={ () => this.handleChange(1) } className={ sP.panel }>
           <ExpSummary expandIcon={<ExpandMoreIcon />} className={ sP.summary }>
             <Typography>Добавить элемент для сравнения</Typography>
@@ -48,12 +81,8 @@ class Panel extends Component {
             <Buttons drawGraph={ drawGraph } isAdditional />
           </ExpDetails>
         </ExpansionPanel>
-        <ExpansionPanel
-          square
-          expanded={ expanded[2] }
-          onChange={ () => this.handleChange(2) }
-          className={ sP.panel }
-        >
+
+        <ExpansionPanel square expanded={ expanded[2] } onChange={ () => this.handleChange(2) } className={ sP.panel }>
           <ExpSummary expandIcon={<ExpandMoreIcon />} className={ sP.summary }>
             <Typography >Загрузить параметры элемента</Typography>
           </ExpSummary>

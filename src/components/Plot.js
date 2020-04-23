@@ -12,7 +12,7 @@ const x2 = 1.1;
 const x3 = 0.5;
 const x4 = 0.01;
 const x5 = 67;
-const x6 = 61;
+const x6 = 60; // толщина лепестка
 
 const THETA_MAX = 360;
 const ZOOM_STEP = 20;
@@ -44,13 +44,13 @@ const config = {
   modeBarButtonsToRemove: ['zoom2d', 'toggleHover']
 };
 
-const layout = ({ angle = 90, width, height, rangeLimit, rotation = 0 }) => ({
+const layout = ({ angle = 90, width, height, rangeLimit, rotation = 0, dtick = 5 }) => ({
   polar: {
     radialaxis: {
       visible: true,
       range: [0, rangeLimit],
       angle,
-      dtick: 5,
+      dtick,
       // title: '' TODO писать тут единицу измерения
     },
     angularaxis: {
@@ -73,7 +73,7 @@ const layout = ({ angle = 90, width, height, rangeLimit, rotation = 0 }) => ({
   height,
 });
 
-const data = ({ rArray, thetaArray, color, name, opacity, lineColor = 'black' }) => ({
+const data = ({ rArray, thetaArray, color, name, opacity, lineColor = 'black', lineWidth = 1 }) => ({
   type: "scatterpolar",
   mode: "lines",
   name: name,
@@ -83,7 +83,7 @@ const data = ({ rArray, thetaArray, color, name, opacity, lineColor = 'black' })
   fillcolor: color,
   line: {
     color: lineColor,
-    width: 1
+    width: lineWidth
   },
   opacity
 });
@@ -115,11 +115,12 @@ class Plot extends Component {
     ];
   }
 
-  returnFunction = (theta, angle, height) => {
+  returnFunction = (theta, angle, height, width) => {
     const newTheta = theta * 2 * Math.PI / THETA_MAX;
     const newAngle = angle || x2;
     const newHeight = height || x1;
-    return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), x6);
+    const newWidth = width || x6;
+    return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), newWidth);
   };
 
   createThetaArray = count => {
@@ -130,17 +131,19 @@ class Plot extends Component {
     return array
   };
 
-  createR = (thetaArray, angle, index, heights) => {
+  createR = (thetaArray, angle, index, heights, width) => {
     const array = [];
-    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle, heights[index])));
+    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle, heights[index], width)));
     return array;
   };
 
   drawPart = (part, index, opacity = 1, heights, lineColor) => {
+    const { count, width, lineWidth } = this.props;
+
     const { color, name, angle } = part;
-    const thetaArray = this.createThetaArray(500);
-    const rArray = this.createR(thetaArray, angle, index, heights);
-    return data({ rArray, thetaArray, color, name, opacity, lineColor });
+    const thetaArray = this.createThetaArray(count);
+    const rArray = this.createR(thetaArray, angle, index, heights, width);
+    return data({ rArray, thetaArray, color, name, opacity, lineColor, lineWidth });
   };
 
   drawAllParts = () => {
@@ -163,14 +166,14 @@ class Plot extends Component {
 
   render() {
     const { width, height } = this.state;
-    const { rangeLimit, rotation } = this.props;
+    const { rangeLimit, rotation, dtick } = this.props;
     const Plot = createPlotlyComponent(Plotly);
 
     return (
       <Paper className={ cx(s.column, s.content) } ref={ this.paperREF }>
         <Plot
           data={ this.drawAllParts() }
-          layout={ layout({ width, height, rangeLimit, rotation }) }
+          layout={ layout({ width, height, rangeLimit, rotation, dtick }) }
           config={ config }
         />
       </Paper>
@@ -182,6 +185,8 @@ Plot.defaultProps = {
   heights: [30, 30, 30],
   rangeLimit: 50,
   additionalHeights: null,
+  count: 500,
+  width: 60,
 };
 
 export default Plot;

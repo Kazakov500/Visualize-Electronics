@@ -53,7 +53,11 @@ class PlotView extends Component {
   state = {
     heights: undefined,
     rotation: 0,
-    additionalHeights: undefined
+    additionalHeights: undefined,
+    count: 500,
+    width: 60,
+    lineWidth: 1,
+    dtick: 5
   };
 
   drawComponentGraph = (index, isAdditional) => {
@@ -64,8 +68,24 @@ class PlotView extends Component {
     });
   };
 
+  onChangeCount = count => {
+    this.setState({ count });
+  };
+
+  onChangeWidth = width => {
+    this.setState({ width });
+  };
+
+  onChangeLineWidth = lineWidth => {
+    this.setState({ lineWidth });
+  };
+
+  onChangeDTick = dtick => {
+    this.setState({ dtick });
+  };
+
   render() {
-    const { heights, rotation, additionalHeights } = this.state;
+    const { heights, rotation, additionalHeights, count, width, lineWidth, dtick } = this.state;
 
     return (
       <div className={ s.plotView }>
@@ -74,8 +94,18 @@ class PlotView extends Component {
           heights={ heights }
           rangeLimit={ RANGE_HIGH_LIMIT }
           additionalHeights={ additionalHeights }
+          count={ count }
+          width={ width }
+          lineWidth={ lineWidth }
+          dtick={ dtick }
         />
-        <Panel drawGraph={ this.drawComponentGraph } />
+        <Panel
+          drawGraph={ this.drawComponentGraph }
+          onChangeCount={ this.onChangeCount }
+          onChangeWidth={ this.onChangeWidth }
+          onChangeLineWidth={ this.onChangeLineWidth }
+          onChangeDTick={ this.onChangeDTick }
+        />
       </div>
     );
   }

@@ -1,0 +1,34 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.minMax {
+    font-size: 14px !important;
+    color: #5e5e5e;
+}
+
+.min {
+    margin-right: 10px !important;
+}
+
+.max {
+    margin-left: 10px !important;
+}
+
+.layout {
+    width: 48%;
+}
+
+.value {
+    font-size: 20px !important;
+    margin-left: 14px !important;
+    width: 15%;
+    flex: none;
+    text-align: center;
+}
+
+.title {
+    font-size: 16px !important;
+}

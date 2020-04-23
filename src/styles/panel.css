@@ -29,3 +29,14 @@
     min-height: 56px !important;
     height: 56px !important;
 }
+
+.sliderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.sliderRow:not(:last-child) {
+    margin-bottom: 20px !important;
+}
