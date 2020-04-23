@@ -1,0 +1,23 @@
+.buttons {
+    justify-content: space-between;
+}
+
+.details {
+    padding: 20px !important;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+.panel {
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.panel:not(:last-child) {
+    border-bottom: 0;
+}
+
+.summary {
+    border-bottom: 1px solid rgba(0,0,0,.125) !important;
+    min-height: 56px !important;
+    height: 56px !important;
+}

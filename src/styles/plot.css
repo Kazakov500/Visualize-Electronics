@@ -1,0 +1,21 @@
+.plotView {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.column {
+    width: 49%;
+    height: 100%;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.columnPaper {
+    height: 100%;
+}
