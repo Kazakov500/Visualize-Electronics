@@ -3,10 +3,11 @@ import Plotly from './customPlotly';
 import createPlotlyComponent from 'react-plotly.js/factory';
 import Paper from '@material-ui/core/Paper';
 import cx from 'classnames';
+import { R_COLOR, C_COLOR, L_COLOR } from './PlotView';
 
 import s from '../styles/plot.css';
 
-const x1 = 40;
+const x1 = 40; // высота лепестка
 const x2 = 1.1;
 const x3 = 0.5;
 const x4 = 0.01;
@@ -16,11 +17,7 @@ const x6 = 61;
 const THETA_MAX = 360;
 const ZOOM_STEP = 20;
 
-const partsConfig = [
-  { angle: 0.79, color: '#00e676', name: 'R' },
-  { angle: -1.3, color: '#00b0ff', name: 'C' },
-  { angle: -0.26, color: '#ff5252', name: 'L' },
-];
+const ADDITIONAL_OPACITY = 0.7;
 
 const config = {
   scrollZoom: true,
@@ -47,17 +44,17 @@ const config = {
   modeBarButtonsToRemove: ['zoom2d', 'toggleHover']
 };
 
-const layout = ({ angle = 90, width, height }) => ({
+const layout = ({ angle = 90, width, height, rangeLimit, rotation = 0 }) => ({
   polar: {
     radialaxis: {
       visible: true,
-      range: [0, 50],
-      angle: angle,
+      range: [0, rangeLimit],
+      angle,
       dtick: 5,
       // title: '' TODO писать тут единицу измерения
     },
     angularaxis: {
-      // rotation: 120,
+      rotation,
       dtick: 30,
     }
   },
@@ -76,7 +73,7 @@ const layout = ({ angle = 90, width, height }) => ({
   height,
 });
 
-const data = ({ rArray, thetaArray, color, name}) => ({
+const data = ({ rArray, thetaArray, color, name, opacity, lineColor = 'black' }) => ({
   type: "scatterpolar",
   mode: "lines",
   name: name,
@@ -85,9 +82,10 @@ const data = ({ rArray, thetaArray, color, name}) => ({
   fill: "toself",
   fillcolor: color,
   line: {
-    color: 'black',
-    width: 0.7
-  }
+    color: lineColor,
+    width: 1
+  },
+  opacity
 });
 
 class Plot extends Component {
@@ -101,19 +99,27 @@ class Plot extends Component {
     super(props);
 
     this.paperREF = React.createRef();
+    this.partsConfig = [];
   }
 
   componentDidMount() {
     this.setState({
       width: this.paperREF.current.clientWidth - 10,
       height: this.paperREF.current.clientHeight - 10
-    })
+    });
+
+    this.partsConfig = [
+      { angle: 0.79, color: R_COLOR, name: 'R' },
+      { angle: -1.3, color: C_COLOR, name: 'C' },
+      { angle: -0.26, color: L_COLOR, name: 'L' },
+    ];
   }
 
-  returnFunction = (theta, angle) => {
+  returnFunction = (theta, angle, height) => {
     const newTheta = theta * 2 * Math.PI / THETA_MAX;
     const newAngle = angle || x2;
-    return x1 * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), x6);
+    const newHeight = height || x1;
+    return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), x6);
   };
 
   createThetaArray = count => {
@@ -124,41 +130,58 @@ class Plot extends Component {
     return array
   };
 
-  createR = (thetaArray, angle) => {
+  createR = (thetaArray, angle, index, heights) => {
     const array = [];
-    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle)));
+    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle, heights[index])));
     return array;
   };
 
-  drawPart = part => {
+  drawPart = (part, index, opacity = 1, heights, lineColor) => {
     const { color, name, angle } = part;
     const thetaArray = this.createThetaArray(500);
-    const rArray = this.createR(thetaArray, angle);
-    return data({ rArray, thetaArray, color , name });
+    const rArray = this.createR(thetaArray, angle, index, heights);
+    return data({ rArray, thetaArray, color, name, opacity, lineColor });
   };
 
   drawAllParts = () => {
+    const { additionalHeights, heights } = this.props;
+
     const parts = [];
-    partsConfig.forEach(part => {
-      parts.push(this.drawPart(part));
-    });
+    if (heights?.length) {
+      this.partsConfig.forEach((part, index) => {
+        parts.push(this.drawPart(part, index, undefined, heights));
+      });
+    }
+    if (additionalHeights?.length) {
+      this.partsConfig.forEach((part, index) => {
+        parts.push(this.drawPart(part, index, ADDITIONAL_OPACITY, additionalHeights, 'white'));
+      });
+    }
+
     return parts;
   };
 
   render() {
     const { width, height } = this.state;
+    const { rangeLimit, rotation } = this.props;
     const Plot = createPlotlyComponent(Plotly);
 
     return (
       <Paper className={ cx(s.column, s.content) } ref={ this.paperREF }>
         <Plot
           data={ this.drawAllParts() }
-          layout={ layout({ width, height }) }
+          layout={ layout({ width, height, rangeLimit, rotation }) }
           config={ config }
         />
       </Paper>
     );
   }
 }
+
+Plot.defaultProps = {
+  heights: [30, 30, 30],
+  rangeLimit: 50,
+  additionalHeights: null,
+};
 
 export default Plot;

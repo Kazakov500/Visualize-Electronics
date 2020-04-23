@@ -2,6 +2,14 @@
     justify-content: space-between;
 }
 
+.button {
+    color: #fff !important;
+}
+
+.button:hover {
+    box-shadow: inset 0 0 400px 110px rgba(41, 41, 41, 0.13) !important;
+}
+
 .details {
     padding: 20px !important;
     border-bottom: 1px solid rgba(0,0,0,.125);
