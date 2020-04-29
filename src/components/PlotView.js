@@ -57,14 +57,31 @@ class PlotView extends Component {
     count: 500,
     width: 60,
     lineWidth: 1,
-    dtick: 5
+    dtick: 5,
+    admission: [5, 5, 5],
+    maxRippleLevel: 3,
+    rangeLimit: RANGE_HIGH_LIMIT
   };
 
   drawComponentGraph = (index, isAdditional, values) => {
     const heights = isAdditional ? 'additionalHeights' : 'heights';
+    const newHeightsValues = index === -1 ? undefined : values && values.length ? values : functionCollection[index]();
+
+    const currentHeights = {
+      heights: this.state.heights,
+      additionalHeights: this.state.additionalHeights
+    };
+    currentHeights[heights] = newHeightsValues;
+    const allHeights = currentHeights.heights ? currentHeights.heights.concat(currentHeights.additionalHeights) : [];
+    let maxHeight = 0;
+    allHeights.forEach(height => {
+      if (height && height > maxHeight) { maxHeight = height; }
+    });
+
     this.setState({
-      [heights]: index === -1 ? undefined : values && values.length ? values : functionCollection[index](),
-      rotation: rotations[index]
+      [heights]: newHeightsValues,
+      rotation: rotations[index],
+      rangeLimit: maxHeight + 10
     });
   };
 
@@ -84,20 +101,35 @@ class PlotView extends Component {
     this.setState({ dtick });
   };
 
+  onChangeAdmission = (newAdmission, type) => {
+    const admission = this.state.admission;
+    admission[type] = newAdmission;
+    this.setState({ admission });
+  };
+
+  onChangeRippleLevel = maxRippleLevel => {
+    this.setState({ maxRippleLevel });
+  };
+
   render() {
-    const { heights, rotation, additionalHeights, count, width, lineWidth, dtick } = this.state;
+    const {
+      heights, rotation, additionalHeights, count, rangeLimit,
+      width, lineWidth, dtick, admission, maxRippleLevel
+    } = this.state;
 
     return (
       <div className={ s.plotView }>
         <Plot
           rotation={ rotation }
           heights={ heights }
-          rangeLimit={ RANGE_HIGH_LIMIT }
+          rangeLimit={ rangeLimit }
           additionalHeights={ additionalHeights }
           count={ count }
           width={ width }
           lineWidth={ lineWidth }
           dtick={ dtick }
+          admission={ admission }
+          maxRippleLevel={ maxRippleLevel }
         />
         <Panel
           drawGraph={ this.drawComponentGraph }
@@ -105,6 +137,8 @@ class PlotView extends Component {
           onChangeWidth={ this.onChangeWidth }
           onChangeLineWidth={ this.onChangeLineWidth }
           onChangeDTick={ this.onChangeDTick }
+          onChangeAdmission={ this.onChangeAdmission }
+          onChangeRippleLevel={ this.onChangeRippleLevel }
         />
       </div>
     );

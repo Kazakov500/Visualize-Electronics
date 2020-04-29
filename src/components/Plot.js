@@ -8,16 +8,18 @@ import { R_COLOR, C_COLOR, L_COLOR } from './PlotView';
 import s from '../styles/plot.css';
 
 const x1 = 40; // высота лепестка
-const x2 = 1.1;
+const x2 = 1.1; // угол поворота
 const x3 = 0.5;
-const x4 = 0.01;
-const x5 = 67;
+const x4 = 0.01; // рябь лепестка
+const x5 = 80; // волнистость лепестка
 const x6 = 60; // толщина лепестка
 
 const THETA_MAX = 360;
 const ZOOM_STEP = 20;
 
-const ADDITIONAL_OPACITY = 0.7;
+const maxRippleLevels = [0.02, 0.04, 0.05, 0.07, 0.09];
+
+const MAIN_OPACITY = 0.7;
 
 const config = {
   scrollZoom: true,
@@ -116,12 +118,13 @@ class Plot extends Component {
     ];
   }
 
-  returnFunction = (theta, angle, height, width) => {
+  returnFunction = (theta, angle, height, width, ripple) => {
     const newTheta = theta * 2 * Math.PI / THETA_MAX;
     const newAngle = angle || x2;
     const newHeight = height === 0 ? 0 : height || x1;
     const newWidth = width || x6;
-    return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), newWidth);
+    const newRipple = ripple || x4;
+    return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + newRipple * Math.sin(x5 * newTheta)), newWidth);
   };
 
   createThetaArray = count => {
@@ -132,33 +135,59 @@ class Plot extends Component {
     return array
   };
 
-  createR = (thetaArray, angle, index, heights, width) => {
+  createR = (thetaArray, angle, index, heights, width, ripple) => {
     const array = [];
-    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle, heights[index], width)));
+    thetaArray.forEach(theta => array.push(this.returnFunction(theta, angle, heights[index], width, ripple)));
     return array;
   };
 
-  drawPart = (part, index, opacity = 1, heights, lineColor) => {
+  drawPart = (part, index, opacity = 1, heights, lineColor, ripple, isBase) => {
     const { count, width, lineWidth } = this.props;
 
     const { color, name, angle } = part;
+    const newName = isBase ? 'базовый ' + name : name;
     const thetaArray = this.createThetaArray(count);
-    const rArray = this.createR(thetaArray, angle, index, heights, width);
-    return data({ rArray, thetaArray, color, name, opacity, lineColor, lineWidth });
+    const rArray = this.createR(thetaArray, angle, index, heights, width, ripple);
+    return data({ rArray, thetaArray, color, name: newName, opacity, lineColor, lineWidth });
+  };
+
+  calculateRipple = () => {
+    const { additionalHeights, heights, admission, maxRippleLevel } = this.props;
+
+    if (!additionalHeights || !additionalHeights.length) return [];
+
+    const maxRipple = maxRippleLevels[maxRippleLevel - 1];
+    const ripples = [];
+
+    heights.forEach((height, index) => {
+      const deviation = Math.abs(100 * additionalHeights[index] / height - 100);
+      const currentAdmission = admission[index];
+
+      if (deviation <= currentAdmission) {
+        ripples[index] = x4;
+      } else if (deviation >= currentAdmission * 2) {
+        ripples[index] = maxRipple;
+      } else {
+        ripples[index] = x4 + (deviation - currentAdmission) * (maxRipple - x4) / currentAdmission;
+      }
+    });
+
+    return ripples;
   };
 
   drawAllParts = () => {
     const { additionalHeights, heights } = this.props;
+    const ripples = this.calculateRipple();
 
     const parts = [];
-    if (heights?.length) {
-      this.partsConfig.forEach((part, index) => {
-        parts.push(this.drawPart(part, index, undefined, heights));
-      });
-    }
     if (additionalHeights?.length) {
       this.partsConfig.forEach((part, index) => {
-        parts.push(this.drawPart(part, index, ADDITIONAL_OPACITY, additionalHeights, 'white'));
+        parts.push(this.drawPart(part, index, undefined, additionalHeights, undefined, ripples[index]));
+      });
+    }
+    if (heights?.length) {
+      this.partsConfig.forEach((part, index) => {
+        parts.push(this.drawPart(part, index, MAIN_OPACITY, heights, 'white', undefined, true));
       });
     }
 
