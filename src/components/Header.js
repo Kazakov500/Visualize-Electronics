@@ -9,12 +9,17 @@ class Header extends Component {
     return (
       <div className={ s.header }>
         <Paper className={ s.headerPaper }>
-          <Typography variant="h5" align="center" component="h3" gutterBottom>
+          <Typography
+            variant="h5"
+            align="center"
+            component="h3"
+            // gutterBottom
+          >
             Система анализа качества элементной базы  при помощи когнитивных визуальных представлений
           </Typography>
-          <Typography align="center" component="h5">
-            Дипломная работа магистра кафедры ИУ-4 Рихтера Андрея
-          </Typography>
+          {/*<Typography align="center" component="h5">*/}
+          {/*  Дипломная работа магистра кафедры ИУ-4 Рихтера Андрея*/}
+          {/*</Typography>*/}
         </Paper>
       </div>
     );

@@ -10,6 +10,10 @@ const isInteger = num => {
   return (num ^ 0) === num;
 };
 
+const isNumber = num => {
+  return isFinite(num);
+};
+
 class CustomSlider extends Component {
   state = {
     value: 0,
@@ -23,17 +27,18 @@ class CustomSlider extends Component {
     this.state.inputValue = props.defaultValue;
   }
 
-  handleChange = (event, value) => {
+  handleSliderChange = (event, value) => {
     const { onChange } = this.props;
     this.setState({ value, inputValue: value });
     onChange && onChange(value);
   };
 
   handleInputChange = event => {
-    const { min, max, onChange } = this.props;
+    const { min, max, onChange, isFloat } = this.props;
     const value = +event.target.value;
+    const isValidNumber = isFloat ? isNumber(value) : isInteger(value);
 
-    if (isInteger(value) && value >= min && value <= max) {
+    if (isValidNumber && value >= min && value <= max) {
       this.setState({ value, inputValue: value });
       onChange && onChange(value);
     } else {
@@ -65,7 +70,7 @@ class CustomSlider extends Component {
             min={ min }
             max={ max }
             step={ step }
-            onChange={ this.handleChange }
+            onChange={ this.handleSliderChange }
           />
           <Typography className={ cx(s.minMax, s.max) }>{max}</Typography>
           <TextField

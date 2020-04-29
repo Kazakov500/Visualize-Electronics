@@ -60,6 +60,7 @@ class Panel extends Component {
                 step={ 0.1 }
                 onChange={ onChangeLineWidth }
                 title="Толщина границ"
+                isFloat
               />
               <CustomSlider
                 min={ 1 }
@@ -75,19 +76,19 @@ class Panel extends Component {
 
         <ExpansionPanel expanded={ expanded[1] } onChange={ () => this.handleChange(1) } className={ sP.panel }>
           <ExpSummary expandIcon={<ExpandMoreIcon />} className={ sP.summary }>
-            <Typography>Добавить элемент для сравнения</Typography>
+            <Typography>Добавить элемент</Typography>
           </ExpSummary>
           <ExpDetails className={ cx(sP.buttons, sP.details) }>
-            <Buttons drawGraph={ drawGraph } isAdditional />
+            <Buttons drawGraph={ drawGraph } />
           </ExpDetails>
         </ExpansionPanel>
 
         <ExpansionPanel square expanded={ expanded[2] } onChange={ () => this.handleChange(2) } className={ sP.panel }>
           <ExpSummary expandIcon={<ExpandMoreIcon />} className={ sP.summary }>
-            <Typography >Загрузить параметры элемента</Typography>
+            <Typography>Добавить элемент для сравнения</Typography>
           </ExpSummary>
           <ExpDetails className={ cx(sP.buttons, sP.details) }>
-            <Buttons drawGraph={ drawGraph } />
+            <Buttons drawGraph={ drawGraph } isAdditional />
           </ExpDetails>
         </ExpansionPanel>
       </Paper>

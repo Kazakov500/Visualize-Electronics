@@ -22,11 +22,9 @@
 }
 
 .value {
-    font-size: 20px !important;
     margin-left: 14px !important;
     width: 15%;
     flex: none;
-    text-align: center;
 }
 
 .title {

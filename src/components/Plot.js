@@ -55,7 +55,8 @@ const layout = ({ angle = 90, width, height, rangeLimit, rotation = 0, dtick = 5
     },
     angularaxis: {
       rotation,
-      dtick: 30,
+      dtick: 15,
+      showticklabels: false
     }
   },
   margin: {
@@ -118,7 +119,7 @@ class Plot extends Component {
   returnFunction = (theta, angle, height, width) => {
     const newTheta = theta * 2 * Math.PI / THETA_MAX;
     const newAngle = angle || x2;
-    const newHeight = height || x1;
+    const newHeight = height === 0 ? 0 : height || x1;
     const newWidth = width || x6;
     return newHeight * Math.pow(Math.sin(newAngle + x3 * newTheta + x4 * Math.sin(x5 * newTheta)), newWidth);
   };

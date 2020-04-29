@@ -1,5 +1,12 @@
+:root {
+    --radio-color-r: #fff;
+    --radio-color-c: #fff;
+    --radio-color-l: #fff;
+}
+
 .buttons {
     justify-content: space-between;
+    align-items: center;
 }
 
 .button {
@@ -11,7 +18,7 @@
 }
 
 .details {
-    padding: 20px !important;
+    padding: 20px 12px !important;
     border-bottom: 1px solid rgba(0,0,0,.125);
 }
 
@@ -39,4 +46,64 @@
 
 .sliderRow:not(:last-child) {
     margin-bottom: 20px !important;
+}
+
+.label span {
+    font-size: 13px !important;
+}
+
+.label_r svg {
+    fill: var(--radio-color-r) !important;
+}
+
+.label_c svg {
+    fill: var(--radio-color-c) !important;
+}
+
+.label_l svg {
+    fill: var(--radio-color-l) !important;
+}
+
+.select div {
+    padding: 9px 32px 9px 10px !important;
+}
+
+.radioGroup {
+    margin-top: -14px !important;
+}
+
+.input {
+    width: 30%;
+    flex: none;
+}
+
+.input input {
+    font-size: 13px !important;
+}
+
+.input label {
+    font-size: 13px !important;
+}
+
+.input input::placeholder {
+    font-size: 13px !important;
+}
+
+.formControl {
+    flex: none;
+    width: 20%;
+}
+
+.inputContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.formControlContainer {
+    padding: 0 14px !important;
+}
+
+.deleteButton {
+    flex: none;
+    margin-left: 14px !important;
 }

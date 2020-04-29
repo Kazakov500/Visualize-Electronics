@@ -17,7 +17,7 @@ export const R_COLOR = '#00e676';
 export const C_COLOR = '#00b0ff';
 export const L_COLOR = '#ff5252';
 
-const rotations = [ 0, 120, 240];
+const rotations = [0, 120, 240];
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -60,10 +60,10 @@ class PlotView extends Component {
     dtick: 5
   };
 
-  drawComponentGraph = (index, isAdditional) => {
+  drawComponentGraph = (index, isAdditional, values) => {
     const heights = isAdditional ? 'additionalHeights' : 'heights';
     this.setState({
-      [heights]: index === -1 ? undefined : functionCollection[index](),
+      [heights]: index === -1 ? undefined : values && values.length ? values : functionCollection[index](),
       rotation: rotations[index]
     });
   };
