@@ -1,0 +1,11 @@
+@import "vars";
+
+.js-plotly-plot .plotly {
+    @import "mixins";
+    @import "base";
+    @import "cursor";
+    @import "modebar";
+    @import "tooltip";
+    @import "drag";
+}
+@import "notifier";
