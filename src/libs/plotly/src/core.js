@@ -14,7 +14,7 @@ exports.version = require('./version').version;
 require('es6-promise').polyfill();
 
 // inject plot css
-require('../build/plotcss');
+require('./plotcss');
 
 // inject default MathJax config
 require('./fonts/mathjax_config')();
