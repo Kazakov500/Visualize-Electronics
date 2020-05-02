@@ -51,7 +51,7 @@ const functionCollection = [createR, createC, createL];
 
 class PlotView extends Component {
   state = {
-    heights: undefined,
+    heights: [30, 30, 30],
     rotation: 0,
     additionalHeights: undefined,
     count: 500,
