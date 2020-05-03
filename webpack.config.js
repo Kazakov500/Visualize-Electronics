@@ -1,5 +1,8 @@
 const path = require('path');
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const MinifyPlugin = require("babel-minify-webpack-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const autoprefixer = require('autoprefixer');
 
 module.exports = {
@@ -44,7 +47,7 @@ module.exports = {
           {
             loader: 'postcss-loader',
             options: {
-              plugins: () => [autoprefixer({ remove: false, browsers: ['last 2 versions'] })]
+              plugins: () => [autoprefixer({ remove: false })]
             }
           }
         ]
@@ -59,11 +62,19 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    minimizer: [new UglifyJsPlugin()],
+    splitChunks: {
+      chunks: 'all'
+    }
+  },
   plugins: [
     new HtmlWebPackPlugin({
       template: "./src/index.html",
       filename: "./index.html"
-    })
+    }),
+    new MinifyPlugin(),
+    new MiniCssExtractPlugin()
   ],
   devServer: {
     open: false
